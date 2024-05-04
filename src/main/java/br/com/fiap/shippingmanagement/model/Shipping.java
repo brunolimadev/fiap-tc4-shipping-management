@@ -6,18 +6,16 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.UUID;
-
 @Data
 @Builder
 @AllArgsConstructor
-@Document("shipping")
+@Document
 public class Shipping {
 
     @Id
-    private UUID id;
-    private UUID client_id;
-    private UUID order_id;
-    private UUID driver_id;
+    private String id;
+    private String client_id;
+    private String order_id;
+    private String driver_id;
 
 }

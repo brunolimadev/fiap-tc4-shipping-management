@@ -15,13 +15,13 @@ public interface ShippingService {
 
     ResponseEntity<List<ShippingResponseDto>> findAllShipping();
 
-    ResponseEntity<ShippingResponseDto> findShippingByShippingId(UUID shippingId);
+    ResponseEntity<ShippingResponseDto> findShippingByShippingId(String shippingId);
 
     ResponseEntity<DriverResponseDto> saveDriver(DriverRequestDto driver);
 
-    ResponseEntity<String> deleteDriverByDriverId(UUID driverId);
+    ResponseEntity<String> deleteDriverByDriverId(String driverId);
 
-    ResponseEntity<String> assignDriverToShipment(UUID shippingId);
+    ResponseEntity<ShippingResponseDto> assignDriverToShipment(String shippingId);
 
     ResponseEntity<ShippingResponseDto> saveShipping(ShippingRequestDto shipping);
 }

@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/shippings")
 public class ShippingController {
@@ -23,7 +21,7 @@ public class ShippingController {
     }
 
     @GetMapping("/{shipping_id}")
-    public ResponseEntity<?> findShippingByShippingId(@PathVariable("shipping_id") UUID shippingId) {
+    public ResponseEntity<?> findShippingByShippingId(@PathVariable("shipping_id") String shippingId) {
         return shippingService.findShippingByShippingId(shippingId);
     }
 
@@ -38,12 +36,12 @@ public class ShippingController {
     }
 
     @DeleteMapping("/drivers/{driver_id}")
-    public ResponseEntity<?> deleteDriver(@PathVariable("driver_id") UUID driverId) {
+    public ResponseEntity<?> deleteDriver(@PathVariable("driver_id") String driverId) {
         return shippingService.deleteDriverByDriverId(driverId);
     }
 
     @PutMapping("/{shipping_id}")
-    public ResponseEntity<?> assignDriverToShipment(@PathVariable("shipping_id") UUID shippingId) {
+    public ResponseEntity<?> assignDriverToShipment(@PathVariable("shipping_id") String shippingId) {
         return shippingService.assignDriverToShipment(shippingId);
     }
 

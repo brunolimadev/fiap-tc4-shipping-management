@@ -6,8 +6,6 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.UUID;
-
 @Data
 @Builder
 @AllArgsConstructor
@@ -15,7 +13,7 @@ import java.util.UUID;
 public class Address {
 
     @Id
-    private UUID id;
+    private String id;
     private String street;
     private String number;
     private String complement;

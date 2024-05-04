@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 @Service
 public class ShippingServiceImpl implements ShippingService {
@@ -40,7 +39,7 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
-    public ResponseEntity<ShippingResponseDto> findShippingByShippingId(UUID shippingId) {
+    public ResponseEntity<ShippingResponseDto> findShippingByShippingId(String shippingId) {
         return ResponseEntity.ok(
                 shippingRepository.findById(shippingId)
                         .map(ShippingResponseDto::new)
@@ -57,16 +56,16 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
-    public ResponseEntity<String> deleteDriverByDriverId(UUID driverId) {
+    public ResponseEntity<String> deleteDriverByDriverId(String driverId) {
         driverRepository.deleteById(driverId);
         return ResponseEntity.ok("Motorista deletado com sucesso.");
     }
 
     @Override
-    public ResponseEntity<String> assignDriverToShipment(UUID shippingId) {
+    public ResponseEntity<ShippingResponseDto> assignDriverToShipment(String shippingId) {
         List<Driver> drivers = driverRepository.findAll();
-        var driverSelected = selectRandomDriver(drivers);
         Shipping shipping = shippingRepository.findById(shippingId).orElse(null);
+        var driverSelected = selectRandomDriver(drivers);
 
         if (driverSelected == null ||  driverSelected.getId() == null) {
             throw new ExceptionShippingValidation("Não encontramos motoritas disponíveis!");
@@ -77,9 +76,8 @@ public class ShippingServiceImpl implements ShippingService {
         }
 
         shipping.setDriver_id(driverSelected.getId());
-        shippingRepository.save(shipping);
 
-        return ResponseEntity.ok("Motorista atribuido com sucesso.");
+        return ResponseEntity.ok(new ShippingResponseDto(shippingRepository.save(shipping), driverSelected));
     }
 
     @Override
