@@ -1,6 +1,8 @@
 package br.com.fiap.shippingmanagement.controller;
 
 import br.com.fiap.shippingmanagement.model.dto.DriverRequestDto;
+import br.com.fiap.shippingmanagement.model.dto.ShippingRequestDto;
+import br.com.fiap.shippingmanagement.model.dto.ShippingResponseDto;
 import br.com.fiap.shippingmanagement.service.ShippingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,11 @@ public class ShippingController {
     @GetMapping("/{shipping_id}")
     public ResponseEntity<?> findShippingByShippingId(@PathVariable("shipping_id") UUID shippingId) {
         return shippingService.findShippingByShippingId(shippingId);
+    }
+
+    @PostMapping()
+    public ResponseEntity<ShippingResponseDto> saveShipping(@RequestBody ShippingRequestDto shipping) {
+        return shippingService.saveShipping(shipping);
     }
 
     @PostMapping("/drivers")

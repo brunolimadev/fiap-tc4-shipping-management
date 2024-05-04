@@ -9,7 +9,8 @@ public record DriverResponseDto(
         String phone
 ) {
     public DriverResponseDto(Driver driver) {
-        this(driver.getName(),
+        this(
+                driver.getName(),
                 driver.getVehicle_plate(),
                 driver.getEmail(),
                 driver.getPhone()
