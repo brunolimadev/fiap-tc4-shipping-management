@@ -1,0 +1,43 @@
+package br.com.fiap.shippingmanagement.controller;
+
+import br.com.fiap.shippingmanagement.model.dto.DriverRequestDto;
+import br.com.fiap.shippingmanagement.service.ShippingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/shippings")
+public class ShippingController {
+
+    @Autowired
+    private ShippingService shippingService;
+
+    @GetMapping
+    public ResponseEntity<?> findAllShipping() {
+        return shippingService.findAllShipping();
+    }
+
+    @GetMapping("/{shipping_id}")
+    public ResponseEntity<?> findShippingByShippingId(@PathVariable("shipping_id") UUID shippingId) {
+        return shippingService.findShippingByShippingId(shippingId);
+    }
+
+    @PostMapping("/drivers")
+    public ResponseEntity<?> saveDriver(@RequestBody DriverRequestDto driver) {
+        return shippingService.saveDriver(driver);
+    }
+
+    @DeleteMapping("/drivers/{driver_id}")
+    public ResponseEntity<?> deleteDriver(@PathVariable("driver_id") UUID driverId) {
+        return shippingService.deleteDriverByDriverId(driverId);
+    }
+
+    @PutMapping("/{shipping_id}")
+    public ResponseEntity<?> assignDriverToShipment(@PathVariable("shipping_id") UUID shippingId) {
+        return shippingService.assignDriverToShipment(shippingId);
+    }
+
+}
