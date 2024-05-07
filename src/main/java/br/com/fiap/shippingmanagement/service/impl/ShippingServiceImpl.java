@@ -5,11 +5,18 @@ import br.com.fiap.shippingmanagement.model.*;
 import br.com.fiap.shippingmanagement.model.dto.*;
 import br.com.fiap.shippingmanagement.repository.*;
 import br.com.fiap.shippingmanagement.service.ShippingService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 @Service
@@ -30,45 +37,51 @@ public class ShippingServiceImpl implements ShippingService {
     @Autowired
     private ShippingDriverRepository shippingDriverRepository;
 
+    @Autowired
+    private DistributionCenterRepository distributionCenterRepository;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Override
-    public ResponseEntity<List<ShippingResponseDto>> findAllShipping() {
-        return ResponseEntity.ok(
-                shippingRepository.findAll()
-                        .stream()
-                        .map(ShippingResponseDto::new)
-                        .toList()
-        );
+    public List<ShippingResponseDto> findAllShipping() {
+        return shippingRepository.findAll()
+                .stream()
+                .map(ShippingResponseDto::new)
+                .toList();
     }
 
     @Override
-    public ResponseEntity<ShippingResponseDto> findShippingByShippingId(String shippingId) {
-        return ResponseEntity.ok(
-                shippingRepository.findById(shippingId)
-                        .map(ShippingResponseDto::new)
-                        .orElse(null)
-        );
+    public ShippingResponseDto findShippingByShippingId(String shippingId) {
+        return shippingRepository.findById(shippingId)
+                .map(ShippingResponseDto::new)
+                .orElse(null);
     }
 
     @Override
-    public ResponseEntity<DriverResponseDto> saveDriver(DriverRequestDto driver) {
+    public DriverResponseDto saveDriver(DriverRequestDto driver) {
         var newAddress = addressRepository.save(createAddressByAddressDto(driver.address()));
         var newDriver = createDriverByDriverDto(driver);
         newDriver.setAddress(newAddress);
-        return ResponseEntity.ok(  new DriverResponseDto( driverRepository.save(newDriver)));
+        return new DriverResponseDto(driverRepository.save(newDriver));
     }
 
     @Override
-    public ResponseEntity<String> deleteDriverByDriverId(String driverId) {
+    public String deleteDriverByDriverId(String driverId) {
         driverRepository.deleteById(driverId);
-        return ResponseEntity.ok("Motorista deletado com sucesso.");
+        return "Motorista deletado com sucesso.";
     }
 
     @Override
-    public ResponseEntity<ShippingResponseDto> assignDriverToShipment(String shippingId) {
+    public ShippingResponseDto assignDriverToShipment(String shippingId) {
 
         var shipping = shippingRepository.findById(shippingId).orElse(null);
-        var driverSelected = selectRandomDriver(driverRepository.findAll());
+        var driverSelected = defineBestDriver(driverRepository.findAll());
         var routeSelected = defineBestRoute(routeRepository.findAll());
+        var distributionCenterSelected = defineBestDistributionCenter(distributionCenterRepository.findAll());
 
         if (driverSelected == null) {
             throw new ExceptionShippingValidation("Não encontramos motoritas disponíveis!");
@@ -82,30 +95,71 @@ public class ShippingServiceImpl implements ShippingService {
             throw new ExceptionShippingValidation("Pedido de logistica não encontrado");
         }
 
+        if (distributionCenterSelected == null) {
+            throw new ExceptionShippingValidation("Centro de distribuição não encontrado!");
+        }
+
         var shippingDriver = ShippingDriver.builder()
                 .shipping(shipping)
                 .route(routeSelected)
                 .driver(driverSelected)
+                .sende_address(distributionCenterSelected.getAddress())
+                .delivery_address(getDeliveryAddressByClientId(shipping.getClient_id()))
+                .start_delivery(LocalDateTime.now())
                 .build();
 
-        return ResponseEntity.ok(new ShippingResponseDto(shipping, shippingDriverRepository.save(shippingDriver)));
+        return new ShippingResponseDto(shipping, shippingDriverRepository.save(shippingDriver));
     }
 
+
     @Override
-    public ResponseEntity<ShippingResponseDto> saveShipping(ShippingRequestDto shipping) {
+    public ShippingResponseDto saveShipping(ShippingRequestDto shipping) {
         var newShipping = Shipping.builder()
                 .client_id(shipping.clientId())
                 .order_id(shipping.orderId())
                 .build();
-        return ResponseEntity.ok(new ShippingResponseDto(shippingRepository.save(newShipping)));
+        return new ShippingResponseDto(shippingRepository.save(newShipping));
     }
 
     @Override
-    public ResponseEntity<?> saveRoute(RouteRequestDto route) {
+    public RouteResponseDto saveRoute(RouteRequestDto route) {
         var newRoute = Route.builder()
                 .description(route.description())
                 .build();
-        return ResponseEntity.ok(new RouteResponseDto(routeRepository.save(newRoute)));
+        return new RouteResponseDto(routeRepository.save(newRoute));
+    }
+
+    @Override
+    public DistributionCenterResponseDto saverDistributionCenter(DistributionCenterRequestDto distributionCenter) {
+        var newDistributionCenter = creteDistributionCenterByDistributionCenterRequestDto(distributionCenter);
+        return new DistributionCenterResponseDto(distributionCenterRepository.save(newDistributionCenter));
+    }
+
+    private Address getDeliveryAddressByClientId(String clientId) {
+
+        ResponseEntity<Client> response = restTemplate.getForEntity(
+                "http://localhost:8080/clients/{client_d}",
+                Client.class,
+                clientId
+        );
+
+        if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+            throw new NoSuchElementException("Cliente não encontrato");
+        }
+
+        if (response.getBody() == null) {
+            throw new NoSuchElementException("Endereço de entrega não encontrado");
+        }
+
+        return response.getBody().getAddress();
+
+    }
+
+    private DistributionCenter creteDistributionCenterByDistributionCenterRequestDto(DistributionCenterRequestDto distributionCenter) {
+        return DistributionCenter.builder()
+                .name(distributionCenter.nome())
+                .address(createAddressByAddressDto(distributionCenter.address()))
+                .build();
     }
 
     private static Driver createDriverByDriverDto(DriverRequestDto driverDto) {
@@ -130,17 +184,19 @@ public class ShippingServiceImpl implements ShippingService {
                 .build();
     }
 
-    public static Driver selectRandomDriver(List<Driver> list) {
-        if (list == null || list.isEmpty()) {
-            return null;
-        }
-
-        Random random = new Random();
-        int randomIndex = random.nextInt(list.size());
-        return list.get(randomIndex);
+    public static Driver defineBestDriver(List<Driver> list) {
+        return selectRandomObject(list);
     }
 
     public static Route defineBestRoute(List<Route> list) {
+        return selectRandomObject(list);
+    }
+
+    private DistributionCenter defineBestDistributionCenter(List<DistributionCenter> list) {
+        return selectRandomObject(list);
+    }
+
+    public static <T> T selectRandomObject(List<T> list) {
         if (list == null || list.isEmpty()) {
             return null;
         }
