@@ -1,13 +1,9 @@
 package br.com.fiap.shippingmanagement.service.impl;
 
 import br.com.fiap.shippingmanagement.exception.ExceptionShippingValidation;
-import br.com.fiap.shippingmanagement.model.Address;
-import br.com.fiap.shippingmanagement.model.Driver;
-import br.com.fiap.shippingmanagement.model.Shipping;
+import br.com.fiap.shippingmanagement.model.*;
 import br.com.fiap.shippingmanagement.model.dto.*;
-import br.com.fiap.shippingmanagement.repository.AddressRepository;
-import br.com.fiap.shippingmanagement.repository.DriverRepository;
-import br.com.fiap.shippingmanagement.repository.ShippingRepository;
+import br.com.fiap.shippingmanagement.repository.*;
 import br.com.fiap.shippingmanagement.service.ShippingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +23,12 @@ public class ShippingServiceImpl implements ShippingService {
 
     @Autowired
     private AddressRepository addressRepository;
+
+    @Autowired
+    private RouteRepository routeRepository;
+
+    @Autowired
+    private ShippingDriverRepository shippingDriverRepository;
 
     @Override
     public ResponseEntity<List<ShippingResponseDto>> findAllShipping() {
@@ -63,21 +65,30 @@ public class ShippingServiceImpl implements ShippingService {
 
     @Override
     public ResponseEntity<ShippingResponseDto> assignDriverToShipment(String shippingId) {
-        List<Driver> drivers = driverRepository.findAll();
-        Shipping shipping = shippingRepository.findById(shippingId).orElse(null);
-        var driverSelected = selectRandomDriver(drivers);
 
-        if (driverSelected == null ||  driverSelected.getId() == null) {
+        var shipping = shippingRepository.findById(shippingId).orElse(null);
+        var driverSelected = selectRandomDriver(driverRepository.findAll());
+        var routeSelected = defineBestRoute(routeRepository.findAll());
+
+        if (driverSelected == null) {
             throw new ExceptionShippingValidation("Não encontramos motoritas disponíveis!");
+        }
+
+        if (routeSelected == null) {
+            throw new ExceptionShippingValidation("Não encontramos uma rota para esse pedido!");
         }
 
         if (shipping == null) {
             throw new ExceptionShippingValidation("Pedido de logistica não encontrado");
         }
 
-        shipping.setDriver_id(driverSelected.getId());
+        var shippingDriver = ShippingDriver.builder()
+                .shipping(shipping)
+                .route(routeSelected)
+                .driver(driverSelected)
+                .build();
 
-        return ResponseEntity.ok(new ShippingResponseDto(shippingRepository.save(shipping), driverSelected));
+        return ResponseEntity.ok(new ShippingResponseDto(shipping, shippingDriverRepository.save(shippingDriver)));
     }
 
     @Override
@@ -87,6 +98,14 @@ public class ShippingServiceImpl implements ShippingService {
                 .order_id(shipping.orderId())
                 .build();
         return ResponseEntity.ok(new ShippingResponseDto(shippingRepository.save(newShipping)));
+    }
+
+    @Override
+    public ResponseEntity<?> saveRoute(RouteRequestDto route) {
+        var newRoute = Route.builder()
+                .description(route.description())
+                .build();
+        return ResponseEntity.ok(new RouteResponseDto(routeRepository.save(newRoute)));
     }
 
     private static Driver createDriverByDriverDto(DriverRequestDto driverDto) {
@@ -112,6 +131,16 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     public static Driver selectRandomDriver(List<Driver> list) {
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+
+        Random random = new Random();
+        int randomIndex = random.nextInt(list.size());
+        return list.get(randomIndex);
+    }
+
+    public static Route defineBestRoute(List<Route> list) {
         if (list == null || list.isEmpty()) {
             return null;
         }

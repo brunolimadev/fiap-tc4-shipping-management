@@ -1,6 +1,7 @@
 package br.com.fiap.shippingmanagement.controller;
 
 import br.com.fiap.shippingmanagement.model.dto.DriverRequestDto;
+import br.com.fiap.shippingmanagement.model.dto.RouteRequestDto;
 import br.com.fiap.shippingmanagement.model.dto.ShippingRequestDto;
 import br.com.fiap.shippingmanagement.model.dto.ShippingResponseDto;
 import br.com.fiap.shippingmanagement.service.ShippingService;
@@ -43,6 +44,11 @@ public class ShippingController {
     @PutMapping("/{shipping_id}")
     public ResponseEntity<?> assignDriverToShipment(@PathVariable("shipping_id") String shippingId) {
         return shippingService.assignDriverToShipment(shippingId);
+    }
+
+    @PostMapping("/routes")
+    public ResponseEntity<?> saveRoute(@RequestBody RouteRequestDto route) {
+        return shippingService.saveRoute(route);
     }
 
 }

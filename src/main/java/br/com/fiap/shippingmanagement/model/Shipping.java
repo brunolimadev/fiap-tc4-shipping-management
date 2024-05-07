@@ -16,6 +16,5 @@ public class Shipping {
     private String id;
     private String client_id;
     private String order_id;
-    private String driver_id;
 
 }
