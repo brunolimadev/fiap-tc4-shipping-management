@@ -171,9 +171,9 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
-    public String finishDeliveryByOrderId(String orderId, LocalDateTime finishDate) {
-        // TODO ::: Não tenho certeza se o ORDER_ID é a melhor opção para essa busca, precisa testar
-        var shippingDriver = shippingDriverRepository.findShippingDriverByOrderId(orderId);
+    public String finishDeliveryByShippingId(String shippingId, LocalDateTime finishDate) {
+        // TODO ::: Não tenho certeza se o SHIPPING_ID é a melhor opção para essa busca, precisa testar
+        var shippingDriver = shippingDriverRepository.findByShippingId(shippingId);
         shippingDriver.setFinish_delivery(LocalDateTime.now());
         shippingDriverRepository.save(shippingDriver);
         return "Entrega finalizada com sucesso";

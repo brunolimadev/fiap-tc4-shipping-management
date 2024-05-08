@@ -7,5 +7,5 @@ public interface ShippingDriverRepository extends MongoRepository<ShippingDriver
 
     ShippingDriver findShippingDriverByShippingId(String shippingId);
 
-    ShippingDriver findShippingDriverByOrderId(String orderId);
+    ShippingDriver findByShippingId(String shippingId);
 }
