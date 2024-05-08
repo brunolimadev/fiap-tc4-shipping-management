@@ -22,4 +22,15 @@ public class Address {
     private String province;
     private String country;
 
+    @Override
+    public String toString() {
+        return this.street
+                + ", nº " + this.number
+                + ", " + this.complement
+                + ", " + this.neighborhood
+                + ", " + this.city
+                + ", " + this.province
+                + ", " + this.country;
+    }
+
 }

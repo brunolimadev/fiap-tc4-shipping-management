@@ -2,10 +2,12 @@ package br.com.fiap.shippingmanagement.controller;
 
 import br.com.fiap.shippingmanagement.model.dto.*;
 import br.com.fiap.shippingmanagement.service.ShippingService;
+import com.google.maps.errors.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @RestController
@@ -49,7 +51,7 @@ public class ShippingController {
     }
 
     @PutMapping("/{shipping_id}/assign_driver")
-    public ResponseEntity<?> assignDriverToShipment(@PathVariable("shipping_id") String shippingId) {
+    public ResponseEntity<?> assignDriverToShipment(@PathVariable("shipping_id") String shippingId) throws IOException, InterruptedException, ApiException {
         return ResponseEntity.ok(shippingService.assignDriverToShipment(shippingId));
     }
 

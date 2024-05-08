@@ -4,10 +4,12 @@ import br.com.fiap.shippingmanagement.exception.ExceptionShippingValidation;
 import br.com.fiap.shippingmanagement.model.*;
 import br.com.fiap.shippingmanagement.model.dto.*;
 import br.com.fiap.shippingmanagement.repository.*;
+import br.com.fiap.shippingmanagement.service.GoogleMapsService;
 import br.com.fiap.shippingmanagement.service.ShippingService;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.maps.errors.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,12 +17,16 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
 @Service
 public class ShippingServiceImpl implements ShippingService {
+
+    @Value("${ms-client.url}")
+    private String url;
 
     @Autowired
     private ShippingRepository shippingRepository;
@@ -45,6 +51,9 @@ public class ShippingServiceImpl implements ShippingService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private GoogleMapsService googleMapsService;
 
     @Override
     public List<ShippingResponseDto> findAllShipping() {
@@ -76,41 +85,57 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
-    public ShippingResponseDto assignDriverToShipment(String shippingId) {
+    public ShippingResponseDto assignDriverToShipment(String shippingId) throws IOException, InterruptedException, ApiException {
 
         var shipping = shippingRepository.findById(shippingId).orElse(null);
         var driverSelected = defineBestDriver(driverRepository.findAll());
-        var routeSelected = defineBestRoute(routeRepository.findAll());
         var distributionCenterSelected = defineBestDistributionCenter(distributionCenterRepository.findAll());
-
-        if (driverSelected == null) {
-            throw new ExceptionShippingValidation("Não encontramos motoritas disponíveis!");
-        }
-
-        if (routeSelected == null) {
-            throw new ExceptionShippingValidation("Não encontramos uma rota para esse pedido!");
-        }
 
         if (shipping == null) {
             throw new ExceptionShippingValidation("Pedido de logistica não encontrado");
+        }
+
+        if (driverSelected == null) {
+            throw new ExceptionShippingValidation("Não encontramos motoritas disponíveis!");
         }
 
         if (distributionCenterSelected == null) {
             throw new ExceptionShippingValidation("Centro de distribuição não encontrado!");
         }
 
+        var origin = distributionCenterSelected.getAddress();
+        var destination = getDeliveryAddressByClientId(shipping.getClient_id());
+
+        var routeSelected = this.criateRoute(
+                creteRouteDescription(shipping, driverSelected),
+                origin.toString(),
+                destination.toString()
+        );
+
+        if (routeSelected == null) {
+            throw new ExceptionShippingValidation("Não encontramos uma rota para esse pedido!");
+        }
+
         var shippingDriver = ShippingDriver.builder()
                 .shipping(shipping)
                 .route(routeSelected)
                 .driver(driverSelected)
-                .sende_address(distributionCenterSelected.getAddress())
-                .delivery_address(getDeliveryAddressByClientId(shipping.getClient_id()))
+                .sende_address(origin)
+                .delivery_address(destination)
                 .start_delivery(LocalDateTime.now())
                 .build();
 
         return new ShippingResponseDto(shipping, shippingDriverRepository.save(shippingDriver));
     }
 
+    private String creteRouteDescription(Shipping shipping, Driver driverSelected) {
+        return String.format("DRIVER_NAME:%s;CLIENT_ID:%s;ORDER_ID:%s;DRIVER_ID:%s",
+                driverSelected.getName(),
+                shipping.getClient_id(),
+                shipping.getOrder_id(),
+                driverSelected.getId()
+        );
+    }
 
     @Override
     public ShippingResponseDto saveShipping(ShippingRequestDto shipping) {
@@ -130,6 +155,16 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
+    public Route criateRoute(String routeName, String origin, String destination) throws IOException, InterruptedException, ApiException {
+        var newRoute = Route.builder()
+                .description(routeName)
+                // TODO::: Preocisa testar essa converção de uma lista de objetos para uma lista de strings
+                .stepsRoute(Arrays.stream(googleMapsService.getDirections(origin, destination).routes).map(String::valueOf).toList())
+                .build();
+        return routeRepository.save(newRoute);
+    }
+
+    @Override
     public DistributionCenterResponseDto saverDistributionCenter(DistributionCenterRequestDto distributionCenter) {
         var newDistributionCenter = creteDistributionCenterByDistributionCenterRequestDto(distributionCenter);
         return new DistributionCenterResponseDto(distributionCenterRepository.save(newDistributionCenter));
@@ -137,6 +172,7 @@ public class ShippingServiceImpl implements ShippingService {
 
     @Override
     public String finishDeliveryByOrderId(String orderId, LocalDateTime finishDate) {
+        // TODO ::: Não tenho certeza se o ORDER_ID é a melhor opção para essa busca, precisa testar
         var shippingDriver = shippingDriverRepository.findShippingDriverByOrderId(orderId);
         shippingDriver.setFinish_delivery(LocalDateTime.now());
         shippingDriverRepository.save(shippingDriver);
@@ -146,7 +182,7 @@ public class ShippingServiceImpl implements ShippingService {
     private Address getDeliveryAddressByClientId(String clientId) {
 
         ResponseEntity<Client> response = restTemplate.getForEntity(
-                "http://localhost:8080/clients/{client_d}",
+                String.format("%s/{client_d}", url),
                 Client.class,
                 clientId
         );
@@ -193,10 +229,6 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     public static Driver defineBestDriver(List<Driver> list) {
-        return selectRandomObject(list);
-    }
-
-    public static Route defineBestRoute(List<Route> list) {
         return selectRandomObject(list);
     }
 

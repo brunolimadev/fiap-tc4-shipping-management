@@ -1,7 +1,10 @@
 package br.com.fiap.shippingmanagement.service;
 
+import br.com.fiap.shippingmanagement.model.Route;
 import br.com.fiap.shippingmanagement.model.dto.*;
+import com.google.maps.errors.ApiException;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,7 +18,7 @@ public interface ShippingService {
 
     String deleteDriverByDriverId(String driverId);
 
-    ShippingResponseDto assignDriverToShipment(String shippingId);
+    ShippingResponseDto assignDriverToShipment(String shippingId) throws IOException, InterruptedException, ApiException;
 
     ShippingResponseDto saveShipping(ShippingRequestDto shipping);
 
@@ -24,4 +27,6 @@ public interface ShippingService {
     DistributionCenterResponseDto saverDistributionCenter(DistributionCenterRequestDto distributionCenter);
 
     String finishDeliveryByOrderId(String orderId, LocalDateTime finishDate);
+
+    Route criateRoute(String routeName, String origin, String destination) throws IOException, InterruptedException, ApiException;
 }
