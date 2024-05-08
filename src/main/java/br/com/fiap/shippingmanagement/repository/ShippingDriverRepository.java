@@ -4,4 +4,8 @@ import br.com.fiap.shippingmanagement.model.ShippingDriver;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ShippingDriverRepository extends MongoRepository<ShippingDriver, String> {
+
+    ShippingDriver findShippingDriverByShippingId(String shippingId);
+
+    ShippingDriver findShippingDriverByOrderId(String orderId);
 }

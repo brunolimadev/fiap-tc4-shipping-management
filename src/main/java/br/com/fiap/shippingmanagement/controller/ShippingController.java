@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/shippings")
 public class ShippingController {
@@ -28,6 +30,8 @@ public class ShippingController {
         return ResponseEntity.ok(shippingService.saveShipping(shipping));
     }
 
+
+
     @PostMapping("/drivers")
     public ResponseEntity<?> saveDriver(@RequestBody DriverRequestDto driver) {
         return ResponseEntity.ok(shippingService.saveDriver(driver));
@@ -38,7 +42,13 @@ public class ShippingController {
         return ResponseEntity.ok(shippingService.deleteDriverByDriverId(driverId));
     }
 
-    @PutMapping("/{shipping_id}")
+    @PutMapping("/{order_id}/finish_delivery/{finish_datetime}")
+    public ResponseEntity<?> finishDelivery(@PathVariable("order_id") String order_id,
+                                            @PathVariable("finish_datetime") LocalDateTime finishDate) {
+        return ResponseEntity.ok(shippingService.finishDeliveryByOrderId(order_id, finishDate));
+    }
+
+    @PutMapping("/{shipping_id}/assign_driver")
     public ResponseEntity<?> assignDriverToShipment(@PathVariable("shipping_id") String shippingId) {
         return ResponseEntity.ok(shippingService.assignDriverToShipment(shippingId));
     }

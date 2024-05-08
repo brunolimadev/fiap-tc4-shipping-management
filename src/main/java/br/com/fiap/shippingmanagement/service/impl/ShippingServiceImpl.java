@@ -135,6 +135,14 @@ public class ShippingServiceImpl implements ShippingService {
         return new DistributionCenterResponseDto(distributionCenterRepository.save(newDistributionCenter));
     }
 
+    @Override
+    public String finishDeliveryByOrderId(String orderId, LocalDateTime finishDate) {
+        var shippingDriver = shippingDriverRepository.findShippingDriverByOrderId(orderId);
+        shippingDriver.setFinish_delivery(LocalDateTime.now());
+        shippingDriverRepository.save(shippingDriver);
+        return "Entrega finalizada com sucesso";
+    }
+
     private Address getDeliveryAddressByClientId(String clientId) {
 
         ResponseEntity<Client> response = restTemplate.getForEntity(

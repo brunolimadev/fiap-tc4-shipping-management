@@ -2,6 +2,7 @@ package br.com.fiap.shippingmanagement.service;
 
 import br.com.fiap.shippingmanagement.model.dto.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ShippingService {
@@ -21,4 +22,6 @@ public interface ShippingService {
     RouteResponseDto saveRoute(RouteRequestDto route);
 
     DistributionCenterResponseDto saverDistributionCenter(DistributionCenterRequestDto distributionCenter);
+
+    String finishDeliveryByOrderId(String orderId, LocalDateTime finishDate);
 }
