@@ -167,6 +167,8 @@ public class ShippingServiceImpl implements ShippingService {
     @Override
     public DistributionCenterResponseDto saverDistributionCenter(DistributionCenterRequestDto distributionCenter) {
         var newDistributionCenter = creteDistributionCenterByDistributionCenterRequestDto(distributionCenter);
+        var newAddress = newDistributionCenter.getAddress();
+        newAddress = addressRepository.save(newAddress);
         return new DistributionCenterResponseDto(distributionCenterRepository.save(newDistributionCenter));
     }
 
@@ -174,7 +176,7 @@ public class ShippingServiceImpl implements ShippingService {
     public String finishDeliveryByShippingId(String shippingId, LocalDateTime finishDate) {
         // TODO ::: Não tenho certeza se o SHIPPING_ID é a melhor opção para essa busca, precisa testar
         var shippingDriver = shippingDriverRepository.findByShippingId(shippingId);
-        shippingDriver.setFinish_delivery(LocalDateTime.now());
+        shippingDriver.setFinish_delivery(finishDate);
         shippingDriverRepository.save(shippingDriver);
         return "Entrega finalizada com sucesso";
     }
