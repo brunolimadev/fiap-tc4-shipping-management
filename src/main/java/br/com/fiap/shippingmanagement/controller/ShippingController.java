@@ -44,7 +44,7 @@ public class ShippingController {
 
     @PutMapping("/{shipping_id}/finish_delivery/{finish_datetime}")
     public ResponseEntity<?> finishDelivery(@PathVariable("shipping_id") String shipping_id,
-                                            @PathVariable("finish_datetime") LocalDateTime finishDate) {
+                                            @PathVariable("finish_datetime") String finishDate) {
         return ResponseEntity.ok(shippingService.finishDeliveryByShippingId(shipping_id, finishDate));
     }
 

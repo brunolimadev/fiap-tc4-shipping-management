@@ -173,31 +173,46 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
-    public String finishDeliveryByShippingId(String shippingId, LocalDateTime finishDate) {
+    public String finishDeliveryByShippingId(String shippingId, String finishDate) {
         // TODO ::: Não tenho certeza se o SHIPPING_ID é a melhor opção para essa busca, precisa testar
         var shippingDriver = shippingDriverRepository.findByShippingId(shippingId);
-        shippingDriver.setFinish_delivery(finishDate);
+
+        if (shippingDriver == null) {
+            throw new ExceptionShippingValidation("Pedido de logistica não encontrado");
+        }
+
+        shippingDriver.setFinish_delivery(LocalDateTime.now());
         shippingDriverRepository.save(shippingDriver);
         return "Entrega finalizada com sucesso";
     }
 
     private Address getDeliveryAddressByClientId(String clientId) {
 
-        ResponseEntity<Client> response = restTemplate.getForEntity(
-                String.format("%s/{client_d}", url),
-                Client.class,
-                clientId
-        );
+//        ResponseEntity<Client> response = restTemplate.getForEntity(
+//                String.format("%s/{client_d}", url),
+//                Client.class,
+//                clientId
+//        );
+//
+//        if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+//            throw new NoSuchElementException("Cliente não encontrato");
+//        }
+//
+//        if (response.getBody() == null) {
+//            throw new NoSuchElementException("Endereço de entrega não encontrado");
+//        }
+//
+//        return response.getBody().getAddress();
 
-        if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
-            throw new NoSuchElementException("Cliente não encontrato");
-        }
-
-        if (response.getBody() == null) {
-            throw new NoSuchElementException("Endereço de entrega não encontrado");
-        }
-
-        return response.getBody().getAddress();
+        return Address.builder()
+                .id("f1ed3106-93d5-4990-93b6-08334dc56664")
+                .number("46")
+                .street("Av. Princesa Januaria")
+                .city("São Bernardo do Campo")
+                .province("SP")
+                .complement("")
+                .country("Brazil")
+                .build();
 
     }
 

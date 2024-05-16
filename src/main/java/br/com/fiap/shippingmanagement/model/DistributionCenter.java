@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Builder
-@Document("distribution-center")
+@Document("distribution_center")
 public class DistributionCenter {
 
     @Id

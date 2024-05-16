@@ -20,7 +20,7 @@ public class GoogleMapsService {
 
     public GoogleMapsService() {
         this.geoApiContext = new GeoApiContext.Builder()
-                .apiKey(googleMapsKey)
+                .apiKey("AIzaSyDCdGd5lXHlkFN4qnYWUjv4aZ-M7iJcBjQ")
                 .build();
     }
 
