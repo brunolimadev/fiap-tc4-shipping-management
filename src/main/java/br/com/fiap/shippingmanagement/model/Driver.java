@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @AllArgsConstructor
 @Builder
-@Document("diver")
+@Document("driver")
 public class Driver {
 
     @Id
