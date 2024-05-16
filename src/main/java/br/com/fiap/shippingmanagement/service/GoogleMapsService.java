@@ -13,14 +13,14 @@ import java.io.IOException;
 @Service
 public class GoogleMapsService {
 
-    @Value("google.maps.app-key")
+    @Value("${google.maps.app-key}")
     private String googleMapsKey;
 
     private final GeoApiContext geoApiContext;
 
     public GoogleMapsService() {
         this.geoApiContext = new GeoApiContext.Builder()
-                .apiKey("AIzaSyDCdGd5lXHlkFN4qnYWUjv4aZ-M7iJcBjQ")
+                .apiKey(googleMapsKey)
                 .build();
     }
 
