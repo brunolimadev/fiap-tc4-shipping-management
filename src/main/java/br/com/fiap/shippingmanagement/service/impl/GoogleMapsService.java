@@ -23,7 +23,8 @@ public class GoogleMapsService {
                 .build();
     }
 
-    public DirectionsResult getDirections(String origin, String destination) throws ApiException, InterruptedException, IOException {
+    public DirectionsResult getDirections(String origin, String destination)
+            throws ApiException, InterruptedException, IOException {
         return DirectionsApi.newRequest(geoApiContext)
                 .origin(origin)
                 .destination(destination)

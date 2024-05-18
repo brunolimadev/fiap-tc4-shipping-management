@@ -4,7 +4,7 @@ import br.com.fiap.shippingmanagement.enumarators.StatusEnum;
 import br.com.fiap.shippingmanagement.exception.ExceptionShippingValidation;
 import br.com.fiap.shippingmanagement.model.*;
 import br.com.fiap.shippingmanagement.model.dto.*;
-import br.com.fiap.shippingmanagement.model.dto.order.GetOrderHistoryResponseDto;
+import br.com.fiap.shippingmanagement.model.dto.order.OrderHistoryDto;
 import br.com.fiap.shippingmanagement.repository.*;
 import br.com.fiap.shippingmanagement.service.OrderProducerService;
 import br.com.fiap.shippingmanagement.service.ShippingService;
@@ -93,7 +93,8 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
-    public ShippingResponseDto assignDriverToShipment(String shippingId) throws IOException, InterruptedException, ApiException {
+    public ShippingResponseDto assignDriverToShipment(String shippingId)
+            throws IOException, InterruptedException, ApiException {
 
         var shipping = shippingRepository.findById(shippingId).orElse(null);
         var driverSelected = defineBestDriver(driverRepository.findAll());
@@ -117,8 +118,7 @@ public class ShippingServiceImpl implements ShippingService {
         var routeSelected = this.criateRoute(
                 creteRouteDescription(shipping, driverSelected),
                 origin.toString(),
-                destination.toString()
-        );
+                destination.toString());
 
         if (routeSelected == null) {
             throw new ExceptionShippingValidation("Não encontramos uma rota para esse pedido!");
@@ -141,8 +141,7 @@ public class ShippingServiceImpl implements ShippingService {
                 driverSelected.getName(),
                 shipping.getClient_id(),
                 shipping.getOrder_id(),
-                driverSelected.getId()
-        );
+                driverSelected.getId());
     }
 
     @Override
@@ -163,11 +162,14 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
-    public Route criateRoute(String routeName, String origin, String destination) throws IOException, InterruptedException, ApiException {
+    public Route criateRoute(String routeName, String origin, String destination)
+            throws IOException, InterruptedException, ApiException {
         var newRoute = Route.builder()
                 .description(routeName)
-                // TODO::: Preocisa testar essa converção de uma lista de objetos para uma lista de strings
-                .stepsRoute(Arrays.stream(googleMapsService.getDirections(origin, destination).routes).map(String::valueOf).toList())
+                // TODO::: Preocisa testar essa converção de uma lista de objetos para uma lista
+                // de strings
+                .stepsRoute(Arrays.stream(googleMapsService.getDirections(origin, destination).routes)
+                        .map(String::valueOf).toList())
                 .build();
         return routeRepository.save(newRoute);
     }
@@ -187,7 +189,8 @@ public class ShippingServiceImpl implements ShippingService {
 
     @Override
     public String finishDeliveryByShippingId(String shippingId, String finishDate) {
-        // TODO ::: Não tenho certeza se o SHIPPING_ID é a melhor opção para essa busca, precisa testar
+        // TODO ::: Não tenho certeza se o SHIPPING_ID é a melhor opção para essa busca,
+        // precisa testar
         var shippingDriver = shippingDriverRepository.findByShippingId(shippingId);
 
         if (shippingDriver == null) {
@@ -200,7 +203,7 @@ public class ShippingServiceImpl implements ShippingService {
         orderProducerService.sendTopic(
                 topicOrderDelivered,
                 shippingDriver.getShipping().getOrder_id(),
-                GetOrderHistoryResponseDto.builder()
+                OrderHistoryDto.builder()
                         .clientId(shippingDriver.getShipping().getClient_id())
                         .orderId(shippingDriver.getShipping().getOrder_id())
                         .status(StatusEnum.DELIVERED.name())
@@ -208,16 +211,17 @@ public class ShippingServiceImpl implements ShippingService {
                         .toString()
         );
 
-        return "Entrega finalizada com sucesso";
+        return "Entrega finalizada com suceso";
     }
 
     private Address getDeliveryAddressByClientId(String clientId) {
 
+        System.out.println("URL: " + url);
+
         ResponseEntity<Client> response = restTemplate.getForEntity(
                 String.format("%s/{client_d}", url),
                 Client.class,
-                clientId
-        );
+                clientId);
 
         if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
             throw new NoSuchElementException("Cliente não encontrato");
@@ -229,19 +233,20 @@ public class ShippingServiceImpl implements ShippingService {
 
         return response.getBody().getAddress();
 
-//        return Address.builder()
-//                .id("f1ed3106-93d5-4990-93b6-08334dc56664")
-//                .number("46")
-//                .street("Av. Princesa Januaria")
-//                .city("São Bernardo do Campo")
-//                .province("SP")
-//                .complement("")
-//                .country("Brazil")
-//                .build();
+        // return Address.builder()
+        // .id("f1ed3106-93d5-4990-93b6-08334dc56664")
+        // .number("46")
+        // .street("Av. Princesa Januaria")
+        // .city("São Bernardo do Campo")
+        // .province("SP")
+        // .complement("")
+        // .country("Brazil")
+        // .build();
 
     }
 
-    private DistributionCenter creteDistributionCenterByDistributionCenterRequestDto(DistributionCenterRequestDto distributionCenter) {
+    private DistributionCenter creteDistributionCenterByDistributionCenterRequestDto(
+            DistributionCenterRequestDto distributionCenter) {
         return DistributionCenter.builder()
                 .name(distributionCenter.nome())
                 .address(createAddressByAddressDto(distributionCenter.address()))

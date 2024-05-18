@@ -10,7 +10,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
-import br.com.fiap.shippingmanagement.model.dto.order.GetOrderHistoryResponseDto;
+import br.com.fiap.shippingmanagement.model.dto.order.OrderHistoryDto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class ProducerKafkaConfig {
      * @return
      */
     @Bean
-    public ProducerFactory<String, GetOrderHistoryResponseDto> producerFactory() {
+    public ProducerFactory<String, OrderHistoryDto> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
 
         // Set the producer configuration properties
@@ -50,7 +50,7 @@ public class ProducerKafkaConfig {
      * @return
      */
     @Bean
-    public KafkaTemplate<String, GetOrderHistoryResponseDto> kafkaTemplate() {
+    public KafkaTemplate<String, OrderHistoryDto> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
