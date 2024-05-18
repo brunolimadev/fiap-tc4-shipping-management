@@ -1,6 +1,7 @@
 package br.com.fiap.shippingmanagement.config.producers;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-
 public class ProducerKafkaConfig {
 
     @Value(value = "${spring.kafka.bootstrap-servers}")
@@ -28,7 +28,7 @@ public class ProducerKafkaConfig {
      * @return
      */
     @Bean
-    public ProducerFactory<String, OrderHistoryDto> producerFactory() {
+    public ProducerFactory<String, String> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
 
         // Set the producer configuration properties
@@ -38,7 +38,7 @@ public class ProducerKafkaConfig {
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 
         // Set the value serializer class
-        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
         // Return the producer factory
         return new DefaultKafkaProducerFactory<>(configProps);
@@ -50,7 +50,7 @@ public class ProducerKafkaConfig {
      * @return
      */
     @Bean
-    public KafkaTemplate<String, OrderHistoryDto> kafkaTemplate() {
+    public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 

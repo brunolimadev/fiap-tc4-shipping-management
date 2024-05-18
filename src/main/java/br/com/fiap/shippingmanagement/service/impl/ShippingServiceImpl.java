@@ -9,6 +9,7 @@ import br.com.fiap.shippingmanagement.repository.*;
 import br.com.fiap.shippingmanagement.service.OrderProducerService;
 import br.com.fiap.shippingmanagement.service.ShippingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.google.maps.errors.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -203,12 +204,13 @@ public class ShippingServiceImpl implements ShippingService {
         orderProducerService.sendTopic(
                 topicOrderDelivered,
                 shippingDriver.getShipping().getOrder_id(),
-                OrderHistoryDto.builder()
+                new Gson().toJson(
+                        OrderHistoryDto.builder()
                         .clientId(shippingDriver.getShipping().getClient_id())
                         .orderId(shippingDriver.getShipping().getOrder_id())
                         .status(StatusEnum.DELIVERED.name())
                         .build()
-                        .toString()
+                )
         );
 
         return "Entrega finalizada com suceso";
@@ -232,16 +234,6 @@ public class ShippingServiceImpl implements ShippingService {
         }
 
         return response.getBody().getAddress();
-
-        // return Address.builder()
-        // .id("f1ed3106-93d5-4990-93b6-08334dc56664")
-        // .number("46")
-        // .street("Av. Princesa Januaria")
-        // .city("São Bernardo do Campo")
-        // .province("SP")
-        // .complement("")
-        // .country("Brazil")
-        // .build();
 
     }
 
