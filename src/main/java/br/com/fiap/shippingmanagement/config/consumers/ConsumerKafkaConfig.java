@@ -9,7 +9,6 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
-import br.com.fiap.shippingmanagement.model.dto.order.GetOrderHistoryResponseDto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,7 @@ public class ConsumerKafkaConfig {
      * @return the consumer factory
      */
     @Bean
-    public ConsumerFactory<String, GetOrderHistoryResponseDto> consumerFactory() {
+    public ConsumerFactory<String, String> consumerFactory2() {
         Map<String, Object> configProps = new HashMap<>();
 
         // Set the producer configuration properties
@@ -37,7 +36,9 @@ public class ConsumerKafkaConfig {
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
         // Set the value serializer class
-        configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        // configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+        // JsonDeserializer.class);
+        configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
         // Set the group id
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -58,10 +59,10 @@ public class ConsumerKafkaConfig {
      * @return the concurrent kafka listener container factory
      */
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, GetOrderHistoryResponseDto> kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
 
-        ConcurrentKafkaListenerContainerFactory<String, GetOrderHistoryResponseDto> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory2());
         return factory;
     }
 

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetOrderHistoryResponseDto {
+public class OrderHistoryDto {
     private String orderId;
     private String description;
     private String status;

@@ -7,7 +7,6 @@ import com.google.maps.errors.ApiException;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.TravelMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -24,7 +23,8 @@ public class GoogleMapsService {
                 .build();
     }
 
-    public DirectionsResult getDirections(String origin, String destination) throws ApiException, InterruptedException, IOException {
+    public DirectionsResult getDirections(String origin, String destination)
+            throws ApiException, InterruptedException, IOException {
         return DirectionsApi.newRequest(geoApiContext)
                 .origin(origin)
                 .destination(destination)

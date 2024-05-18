@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/shippings")
@@ -44,12 +43,13 @@ public class ShippingController {
 
     @PutMapping("/{shipping_id}/finish_delivery/{finish_datetime}")
     public ResponseEntity<?> finishDelivery(@PathVariable("shipping_id") String shipping_id,
-                                            @PathVariable("finish_datetime") String finishDate) {
+            @PathVariable("finish_datetime") String finishDate) {
         return ResponseEntity.ok(shippingService.finishDeliveryByShippingId(shipping_id, finishDate));
     }
 
     @PutMapping("/{shipping_id}/assign_driver")
-    public ResponseEntity<?> assignDriverToShipment(@PathVariable("shipping_id") String shippingId) throws IOException, InterruptedException, ApiException {
+    public ResponseEntity<?> assignDriverToShipment(@PathVariable("shipping_id") String shippingId)
+            throws IOException, InterruptedException, ApiException {
         return ResponseEntity.ok(shippingService.assignDriverToShipment(shippingId));
     }
 
@@ -64,7 +64,7 @@ public class ShippingController {
     }
 
     @GetMapping("/drivers")
-    public ResponseEntity<?>  getAllDrivers() {
+    public ResponseEntity<?> getAllDrivers() {
         return ResponseEntity.ok(shippingService.getAllDrivers());
     }
 
