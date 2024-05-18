@@ -15,4 +15,15 @@ public class GetOrderHistoryResponseDto {
     private String status;
     private String createdAt;
     private String clientId;
+
+    @Override
+    public String toString() {
+        return "{" +
+                "orderId='" + orderId + '\'' +
+                ", description='" + description + '\'' +
+                ", status='" + status + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", clientId='" + clientId + '\'' +
+                '}';
+    }
 }

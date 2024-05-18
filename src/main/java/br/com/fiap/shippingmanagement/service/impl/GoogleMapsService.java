@@ -1,4 +1,4 @@
-package br.com.fiap.shippingmanagement.service;
+package br.com.fiap.shippingmanagement.service.impl;
 
 import br.com.fiap.shippingmanagement.config.GoogleMapsProperties;
 import com.google.maps.DirectionsApi;
@@ -7,7 +7,6 @@ import com.google.maps.errors.ApiException;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.TravelMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
