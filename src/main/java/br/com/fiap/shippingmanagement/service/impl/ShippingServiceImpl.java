@@ -188,31 +188,31 @@ public class ShippingServiceImpl implements ShippingService {
 
     private Address getDeliveryAddressByClientId(String clientId) {
 
-//        ResponseEntity<Client> response = restTemplate.getForEntity(
-//                String.format("%s/{client_d}", url),
-//                Client.class,
-//                clientId
-//        );
-//
-//        if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
-//            throw new NoSuchElementException("Cliente não encontrato");
-//        }
-//
-//        if (response.getBody() == null) {
-//            throw new NoSuchElementException("Endereço de entrega não encontrado");
-//        }
-//
-//        return response.getBody().getAddress();
+        ResponseEntity<Client> response = restTemplate.getForEntity(
+                String.format("%s/{client_d}", url),
+                Client.class,
+                clientId
+        );
 
-        return Address.builder()
-                .id("f1ed3106-93d5-4990-93b6-08334dc56664")
-                .number("46")
-                .street("Av. Princesa Januaria")
-                .city("São Bernardo do Campo")
-                .province("SP")
-                .complement("")
-                .country("Brazil")
-                .build();
+        if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+            throw new NoSuchElementException("Cliente não encontrato");
+        }
+
+        if (response.getBody() == null) {
+            throw new NoSuchElementException("Endereço de entrega não encontrado");
+        }
+
+        return response.getBody().getAddress();
+
+//        return Address.builder()
+//                .id("f1ed3106-93d5-4990-93b6-08334dc56664")
+//                .number("46")
+//                .street("Av. Princesa Januaria")
+//                .city("São Bernardo do Campo")
+//                .province("SP")
+//                .complement("")
+//                .country("Brazil")
+//                .build();
 
     }
 
