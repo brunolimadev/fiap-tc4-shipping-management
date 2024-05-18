@@ -1,17 +1,21 @@
 package br.com.fiap.shippingmanagement.service.impl;
 
+import br.com.fiap.shippingmanagement.enumarators.StatusEnum;
 import br.com.fiap.shippingmanagement.exception.ExceptionShippingValidation;
 import br.com.fiap.shippingmanagement.model.*;
 import br.com.fiap.shippingmanagement.model.dto.*;
+import br.com.fiap.shippingmanagement.model.dto.order.GetOrderHistoryResponseDto;
 import br.com.fiap.shippingmanagement.repository.*;
 import br.com.fiap.shippingmanagement.service.GoogleMapsService;
 import br.com.fiap.shippingmanagement.service.ShippingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.maps.errors.ApiException;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,6 +31,9 @@ public class ShippingServiceImpl implements ShippingService {
 
     @Value("${ms-client.url}")
     private String url;
+
+    @Value(value = "${kafka.topic.order.delivered}")
+    private String topicOrderDelivered;
 
     @Autowired
     private ShippingRepository shippingRepository;
@@ -54,6 +61,12 @@ public class ShippingServiceImpl implements ShippingService {
 
     @Autowired
     private GoogleMapsService googleMapsService;
+
+    private final KafkaTemplate<String, GetOrderHistoryResponseDto> kafkaTemplate;
+
+    public ShippingServiceImpl(KafkaTemplate<String, GetOrderHistoryResponseDto> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
     @Override
     public List<ShippingResponseDto> findAllShipping() {
@@ -188,6 +201,13 @@ public class ShippingServiceImpl implements ShippingService {
 
         shippingDriver.setFinish_delivery(LocalDateTime.now());
         shippingDriverRepository.save(shippingDriver);
+
+        sendTopic(GetOrderHistoryResponseDto.builder()
+                .clientId(shippingDriver.getShipping().getClient_id())
+                .orderId(shippingDriver.getShipping().getOrder_id())
+                .status(StatusEnum.DELIVERED.name())
+                .build());
+
         return "Entrega finalizada com sucesso";
     }
 
@@ -266,5 +286,11 @@ public class ShippingServiceImpl implements ShippingService {
         Random random = new Random();
         int randomIndex = random.nextInt(list.size());
         return list.get(randomIndex);
+    }
+
+    private void sendTopic(GetOrderHistoryResponseDto order) {
+        var record = new ProducerRecord<>(topicOrderDelivered, order.getOrderId(), order);
+        kafkaTemplate.send(record);
+//        log.info("Order {} sent to topic {} and partition {}", order.getOrderId(), result.getRecordMetadata().topic(), result.getRecordMetadata().partition());
     }
 }

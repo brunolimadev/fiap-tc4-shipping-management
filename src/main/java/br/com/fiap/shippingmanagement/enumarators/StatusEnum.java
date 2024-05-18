@@ -6,5 +6,5 @@ public enum StatusEnum {
     WAITING_SHIPMENT,
     SHIPPED,
     DELIVERED,
-    CANCELED
+    SENT, CANCELED
 }
