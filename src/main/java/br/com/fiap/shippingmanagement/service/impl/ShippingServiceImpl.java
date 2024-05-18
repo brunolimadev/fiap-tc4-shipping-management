@@ -165,6 +165,11 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
+    public List<DriverResponseDto> getAllDrivers() {
+        return driverRepository.findAll().stream().map(DriverResponseDto::new).toList();
+    }
+
+    @Override
     public DistributionCenterResponseDto saverDistributionCenter(DistributionCenterRequestDto distributionCenter) {
         var newDistributionCenter = creteDistributionCenterByDistributionCenterRequestDto(distributionCenter);
         var newAddress = newDistributionCenter.getAddress();

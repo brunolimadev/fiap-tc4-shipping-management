@@ -29,4 +29,6 @@ public interface ShippingService {
     String finishDeliveryByShippingId(String shippingId, String finishDate);
 
     Route criateRoute(String routeName, String origin, String destination) throws IOException, InterruptedException, ApiException;
+
+    List<DriverResponseDto> getAllDrivers();
 }
