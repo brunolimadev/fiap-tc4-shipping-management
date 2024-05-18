@@ -63,4 +63,9 @@ public class ShippingController {
         return ResponseEntity.ok(shippingService.saverDistributionCenter(distributionCenter));
     }
 
+    @GetMapping("/drivers")
+    public ResponseEntity<?>  getAllDrivers() {
+        return ResponseEntity.ok(shippingService.getAllDrivers());
+    }
+
 }
