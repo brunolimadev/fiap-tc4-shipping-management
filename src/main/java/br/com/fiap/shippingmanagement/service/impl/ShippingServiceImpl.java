@@ -125,6 +125,12 @@ public class ShippingServiceImpl implements ShippingService {
             throw new ExceptionShippingValidation("Não encontramos uma rota para esse pedido!");
         }
 
+        var shippingDriverDuplicated = shippingDriverRepository.findByShippingId(shippingId);
+
+        if (shippingDriverDuplicated != null) {
+            throw new ExceptionShippingValidation("Pedido de entrega já realizado anteriormente!!");
+        }
+
         var shippingDriver = ShippingDriver.builder()
                 .shipping(shipping)
                 .route(routeSelected)
@@ -189,7 +195,7 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
-    public String finishDeliveryByShippingId(String shippingId, String finishDate) {
+    public String finishDeliveryByShippingId(String shippingId) {
         // TODO ::: Não tenho certeza se o SHIPPING_ID é a melhor opção para essa busca,
         // precisa testar
         var shippingDriver = shippingDriverRepository.findByShippingId(shippingId);

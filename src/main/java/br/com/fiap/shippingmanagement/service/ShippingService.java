@@ -26,7 +26,7 @@ public interface ShippingService {
 
     DistributionCenterResponseDto saverDistributionCenter(DistributionCenterRequestDto distributionCenter);
 
-    String finishDeliveryByShippingId(String shippingId, String finishDate);
+    String finishDeliveryByShippingId(String shippingId);
 
     Route criateRoute(String routeName, String origin, String destination)
             throws IOException, InterruptedException, ApiException;

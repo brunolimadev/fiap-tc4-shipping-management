@@ -41,10 +41,9 @@ public class ShippingController {
         return ResponseEntity.ok(shippingService.deleteDriverByDriverId(driverId));
     }
 
-    @PutMapping("/{shipping_id}/finish_delivery/{finish_datetime}")
-    public ResponseEntity<?> finishDelivery(@PathVariable("shipping_id") String shipping_id,
-            @PathVariable("finish_datetime") String finishDate) {
-        return ResponseEntity.ok(shippingService.finishDeliveryByShippingId(shipping_id, finishDate));
+    @PutMapping("/{shipping_id}/finish_delivery")
+    public ResponseEntity<?> finishDelivery(@PathVariable("shipping_id") String shipping_id) {
+        return ResponseEntity.ok(shippingService.finishDeliveryByShippingId(shipping_id));
     }
 
     @PutMapping("/{shipping_id}/assign_driver")

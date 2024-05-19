@@ -5,7 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface ShippingDriverRepository extends MongoRepository<ShippingDriver, String> {
 
-    ShippingDriver findShippingDriverByShippingId(String shippingId);
-
     ShippingDriver findByShippingId(String shippingId);
 }
