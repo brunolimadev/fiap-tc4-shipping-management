@@ -209,6 +209,10 @@ public class ShippingServiceImpl implements ShippingService {
             throw new ExceptionShippingValidation("Pedido de logistica não encontrado");
         }
 
+        if (shippingDriver.getFinish_delivery() != null) {
+            throw new ExceptionShippingValidation("Pedido já foi finalizado!");
+        }
+
         shippingDriver.setFinish_delivery(LocalDateTime.now());
         shippingDriverRepository.save(shippingDriver);
 
