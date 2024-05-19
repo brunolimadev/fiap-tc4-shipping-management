@@ -200,7 +200,7 @@ public class ShippingServiceImpl implements ShippingService {
     }
 
     @Override
-    public String finishDeliveryByShippingId(String shippingId) {
+    public ShippingResponseDto finishDeliveryByShippingId(String shippingId) {
         // TODO ::: Não tenho certeza se o SHIPPING_ID é a melhor opção para essa busca,
         // precisa testar
         var shippingDriver = shippingDriverRepository.findByShippingId(shippingId);
@@ -224,7 +224,7 @@ public class ShippingServiceImpl implements ShippingService {
                 )
         );
 
-        return "Entrega finalizada com suceso";
+        return new ShippingResponseDto(shippingDriver.getShipping(), shippingDriver);
     }
 
     private Address getDeliveryAddressByClientId(String clientId) {

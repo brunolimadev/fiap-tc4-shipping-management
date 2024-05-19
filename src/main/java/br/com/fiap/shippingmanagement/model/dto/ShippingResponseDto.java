@@ -3,6 +3,7 @@ package br.com.fiap.shippingmanagement.model.dto;
 import br.com.fiap.shippingmanagement.model.Shipping;
 import br.com.fiap.shippingmanagement.model.ShippingDriver;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record ShippingResponseDto(
@@ -13,13 +14,17 @@ public record ShippingResponseDto(
         String vehiclePlate,
         String shippingDriverId,
         String routeDescription,
-        List<String> route
+        List<String> route,
+        LocalDateTime startDelivery,
+        LocalDateTime finishDelivery
 ) {
     public ShippingResponseDto(Shipping shipping) {
         this(
                 shipping.getId(),
                 shipping.getClient_id(),
                 shipping.getOrder_id(),
+                null,
+                null,
                 null,
                 null,
                 null,
@@ -37,7 +42,9 @@ public record ShippingResponseDto(
                 shippingDriver.getDriver().getVehicle_plate(),
                 shippingDriver.getId(),
                 shippingDriver.getRoute().getDescription(),
-                shippingDriver.getRoute().getStepsRoute()
+                shippingDriver.getRoute().getStepsRoute(),
+                shippingDriver.getStart_delivery(),
+                shippingDriver.getFinish_delivery()
         );
     }
 }
