@@ -19,11 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.sql.Array;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class ShippingServiceImpl implements ShippingService {
@@ -66,10 +64,18 @@ public class ShippingServiceImpl implements ShippingService {
 
     @Override
     public List<ShippingResponseDto> findAllShipping() {
-        return shippingRepository.findAll()
-                .stream()
-                .map(ShippingResponseDto::new)
-                .toList();
+
+//        return shippingRepository.findAll()
+//                .stream()
+//                .map(ShippingResponseDto::new)
+//                .toList();
+
+        var listShippingResponseDto = new ArrayList<ShippingResponseDto>();
+        shippingDriverRepository.findAll().forEach(element -> {
+            listShippingResponseDto.add(new ShippingResponseDto(element.getShipping(), element));
+        });
+        return listShippingResponseDto;
+
     }
 
     @Override
